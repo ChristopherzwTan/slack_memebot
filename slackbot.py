@@ -9,11 +9,12 @@
 
 import os
 import time
+import random
 from slackclient import SlackClient
 
 COMMAND = "paging"
 #TODO GIVE BOT A NAME
-BOT_NAME = ''
+AT_BOT = ''
 
 # instantiate slack clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
@@ -23,6 +24,9 @@ slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 restaurants = [McDonalds, Burger King, Bubble Waffle, Pho, Sushi, Japanese, Blue Sail Cafe,
 Tim Hortons
 ]
+
+def which_restaurant():
+    return restaurants[random.randint(len(restaurants))]
 
 def print_bot_info(slack_user):
     api_call = slack_client.api_call("users.list")
@@ -45,8 +49,8 @@ def handle_command(command, channel):
         business continues as usual.
     """
     if command.startswith(COMMAND):
-        food = "Test"
-        response = "We should probably eat at " + food + "today!"
+        food = which_restaurant
+        response = "Let's eat at " + food + "today!"
         #response = "Christopher's memebot at your service!"
         slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, as_user=True)
