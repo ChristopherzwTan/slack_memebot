@@ -20,6 +20,10 @@ slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 #slack_token = os.environ["SLACK_BOT_TOKEN"]
 #slack_client = SlackClient(slack_token)
 
+restaurants = [McDonalds, Burger King, Bubble Waffle, Pho, Sushi, Japanese, Blue Sail Cafe,
+Tim Hortons
+]
+
 def print_bot_info(slack_user):
     api_call = slack_client.api_call("users.list")
     if api_call.get('ok'):
@@ -32,6 +36,8 @@ def print_bot_info(slack_user):
         print("Failed to find user...")
 
 #def respond_to_name(name="christophert"):
+
+
 def handle_command(command, channel):
     """
         Receives commands directed at the bot and determines if they
@@ -39,8 +45,10 @@ def handle_command(command, channel):
         business continues as usual.
     """
     if command.startswith(COMMAND):
-        response = "Christopher's memebot at your service!"
-    slack_client.api_call("chat.postMessage", channel=channel,
+        food = "Test"
+        response = "We should probably eat at " + food + "today!"
+        #response = "Christopher's memebot at your service!"
+        slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, as_user=True)
 
 def parse_slack_output(slack_rtm_output):
