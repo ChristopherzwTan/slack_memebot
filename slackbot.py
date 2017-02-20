@@ -14,7 +14,8 @@ from slackclient import SlackClient
 
 COMMAND = "paging"
 #TODO GIVE BOT A NAME
-AT_BOT = ''
+BOT_NAME = 'luncbot'
+AT_BOT = "<@" + BOT_ID +  ">"
 
 # instantiate slack clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
@@ -28,7 +29,7 @@ Tim Hortons
 def which_restaurant():
     return restaurants[random.randint(len(restaurants))]
 
-def print_bot_info(slack_user):
+def print_bot_id(slack_user):
     api_call = slack_client.api_call("users.list")
     if api_call.get('ok'):
         # retrive all users so we can find the bot
@@ -48,7 +49,7 @@ def handle_command(command, channel):
         are valid commands. If so, then acts on the commands. If not,
         business continues as usual.
     """
-    if command.startswith(COMMAND):
+    if command.lower().startswith(COMMAND):
         food = which_restaurant
         response = "Let's eat at " + food + "today!"
         #response = "Christopher's memebot at your service!"
