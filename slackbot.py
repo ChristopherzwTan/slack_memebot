@@ -14,7 +14,7 @@ from slackclient import SlackClient
 
 COMMAND = "paging"
 #TODO GIVE BOT A NAME
-BOT_NAME = 'luncbot'
+BOT_NAME = 'lunchbot'
 AT_BOT = "<@" + BOT_ID +  ">"
 
 # instantiate slack clients
