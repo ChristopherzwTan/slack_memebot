@@ -12,19 +12,21 @@ import time
 import random
 from slackclient import SlackClient
 
-COMMAND = "paging"
-#TODO GIVE BOT A NAME
-BOT_NAME = 'lunchbot'
-AT_BOT = "<@" + BOT_ID +  ">"
-
 # instantiate slack clients
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 #slack_token = os.environ["SLACK_BOT_TOKEN"]
 #slack_client = SlackClient(slack_token)
+BOT_ID = os.environ.get('BOT_ID')
 
-restaurants = [McDonalds, Burger King, Bubble Waffle, Pho, Sushi, Japanese, Blue Sail Cafe,
-Tim Hortons
-]
+
+COMMAND = "paging"
+BOT_NAME = 'lunchbot'
+AT_BOT = "<@" + BOT_ID +  ">"
+
+
+restaurants = ["McDonalds", "Burger King", "Bubble Waffle", "Pho", "Sushi", "Japanese", "Blue Sail Cafe",
+               "Tim Hortons"
+              ]
 
 def which_restaurant():
     return restaurants[random.randint(len(restaurants))]
@@ -36,8 +38,8 @@ def print_bot_id(slack_user):
         users = api_call.get('members')
         for user in users:
             if 'name' in user and user.get('name') == slack_user:
-            print("Bot ID for '" + user['name'] + "' is " + user.get('id'))
-    else
+                print("Bot ID for '" + user['name'] + "' is " + user.get('id'))
+    else:
         print("Failed to find user...")
 
 #def respond_to_name(name="christophert"):
@@ -51,8 +53,8 @@ def handle_command(command, channel):
     """
     if command.lower().startswith(COMMAND):
         food = which_restaurant
-        response = "Let's eat at " + food + "today!"
-        #response = "Christopher's memebot at your service!"
+        #response = "Let's eat at " + food + "today!"
+        response = "Christopher's memebot at your service!"
         slack_client.api_call("chat.postMessage", channel=channel,
                           text=response, as_user=True)
 
