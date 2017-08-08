@@ -9,6 +9,7 @@ channel='#lunch'
 BOT_NAME = 'lunchbot'
 
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
+slack_client = SlackClient('xoxb-150541071783-z72EBJxnEqOZltUxSF5nXxPW')
 
 def print_bot_id(slack_user):
     api_call = slack_client.api_call("users.list")
@@ -24,19 +25,28 @@ def print_bot_id(slack_user):
     
         
 if __name__ == "__main__":
+    if slack_client.api_call("api.test"):
+        print "connected!"
+    else:
+        print "FAILED!"
+    print_bot_id(BOT_NAME)
     READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
-    response="What's for lunch?"
+    lunch_prompt="What's for lunch?"
+    coffee_prompt="Coffee?"
     if slack_client.rtm_connect():
         print("Lunchbot connected and running!")
         while True:
             now = datetime.now()
             day = now.isoweekday()
+            print now
             print day
             if (day == 2 or day == 4) and (now.hour == 11 and now.minute == 25 and now.second == 0):
                 slack_client.api_call("chat.postMessage", channel=channel,
-                          text=response, as_user=True)
+                          text=lunch_prompt, as_user=True)
+            if (now.hour == 14 and now.minute == 30 and now.second == 0):
+                slack_client.api_call("chat.postMessage", channel=channel,
+                          text=coffee_prompt, as_user=True)
             time.sleep(READ_WEBSOCKET_DELAY)
     else:
         print("Connection failed. Invalid Slack token or bot ID?")
-    #print_bot_id(BOT_NAME)
     
