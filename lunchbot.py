@@ -24,7 +24,7 @@ def print_bot_id(slack_user):
     
         
 if __name__ == "__main__":
-    print_bot_id(BOT_NAME)
+    #print_bot_id(BOT_NAME)
     READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
     lunch_prompt="What's for lunch?"
     coffee_prompt="Coffee?"
