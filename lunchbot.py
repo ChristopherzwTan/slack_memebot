@@ -9,7 +9,6 @@ channel='#lunch'
 BOT_NAME = 'lunchbot'
 
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
-slack_client = SlackClient('xoxb-150541071783-z72EBJxnEqOZltUxSF5nXxPW')
 
 def print_bot_id(slack_user):
     api_call = slack_client.api_call("users.list")
