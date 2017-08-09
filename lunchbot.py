@@ -24,10 +24,6 @@ def print_bot_id(slack_user):
     
         
 if __name__ == "__main__":
-    if slack_client.api_call("api.test"):
-        print "connected!"
-    else:
-        print "FAILED!"
     print_bot_id(BOT_NAME)
     READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
     lunch_prompt="What's for lunch?"
@@ -37,8 +33,6 @@ if __name__ == "__main__":
         while True:
             now = datetime.now()
             day = now.isoweekday()
-            print now
-            print day
             if (day == 2 or day == 4) and (now.hour == 11 and now.minute == 25 and now.second == 0):
                 slack_client.api_call("chat.postMessage", channel=channel,
                           text=lunch_prompt, as_user=True)
