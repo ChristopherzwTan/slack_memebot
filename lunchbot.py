@@ -33,7 +33,7 @@ if __name__ == "__main__":
         while True:
             now = datetime.now()
             day = now.isoweekday()
-            if (day == 2 or day == 4) and (now.hour == 11 and now.minute == 25 and now.second == 0):
+            if (day == 2 or day == 4) and (now.hour == 11 and now.minute == 5 and now.second == 0):
                 slack_client.api_call("chat.postMessage", channel=channel,
                           text=lunch_prompt, as_user=True)
             if (now.hour == 14 and now.minute == 30 and now.second == 0):
