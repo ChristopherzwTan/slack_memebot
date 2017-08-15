@@ -50,7 +50,7 @@ if __name__ == "__main__":
         while True:
             now = datetime.now()
             day = now.isoweekday()
-            if (day == 2 or day == 4 and now.hour == 11 and now.minute == 5 and now.second == 0):
+            if (day == 2 or day == 4) and (now.hour == 11 and now.minute == 5 and now.second == 0):
                 restaurant = weighted_choice(RESTAURANT_CHOICES)
                 lunch_prompt = 'What\'s for lunch? %s?' % restaurant
                 SLACK_CLIENT.api_call('chat.postMessage', channel=CHANNEL,
