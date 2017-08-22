@@ -16,13 +16,19 @@ class Lunchbot(object):
     CHANNEL = '#lunch'
     BOT_NAME = 'lunchbot'
     SLACK_CLIENT = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
-    READ_WEBSOCKET_DELAY = 900 # 15 minute delay between reading from firehose
+    READ_WEBSOCKET_DELAY = 60 # 1 minute delay between reading from firehose
 
     # Lunchbot constants
     RESTAURANTS = {}
     MESSAGES = {}
 
     def __init__(self):
+        self.read_data()
+
+    def read_data(self):
+        """
+        Reads data from data file and updates internal constants
+        """
         with open('data.json') as data_file:
             data = json.load(data_file)
         self.RESTAURANTS = data['restaurants']
@@ -67,22 +73,20 @@ class Lunchbot(object):
             print 'Lunchbot connected and running!'
             while True:
                 now = datetime.now()
-                day = now.isoweekday()
-                if (day == 2 or day == 4) and (now.hour == 11 and now.minute == 5 and now.second == 0):
-                    restaurant = self.weighted_choice(self.RESTAURANTS)
-                    lunch_prompt = 'What\'s for lunch? %s?' % restaurant
-                    self.SLACK_CLIENT.api_call('chat.postMessage', channel=self.CHANNEL,
-                                               text=lunch_prompt, as_user=True)
-                elif (day == 1 or day == 3) and (now.hour == 11 and now.minute == 30 and now.second == 0):
-                    # Mondays and Wednesdays
-                    lunch_prompt = 'Ready to go upstairs for lunch?'
-                    self.SLACK_CLIENT.api_call('chat.postMessage', channel=self.CHANNEL,
-                                               text=lunch_prompt, as_user=True)
+                current_time = now.strftime('%H:%M')
+                day = now.strftime('%A')
 
-                if (day >= 1 and day <= 5) and (now.hour == 14 and now.minute == 30 and now.second == 0):
-                    coffee_prompt = 'Coffee?'
-                    self.SLACK_CLIENT.api_call('chat.postMessage', channel=self.CHANNEL,
-                                               text=coffee_prompt, as_user=True)
+                for message in self.MESSAGES:
+                    if current_time == message['time'] and day in message['days']:
+                        msg = message['message']
+
+                        # Append restaurant when eating out
+                        if message['type'] == 'eating_out':
+                            msg = '%s %s?' % (msg, self.weighted_choice(self.RESTAURANTS))
+
+                        self.SLACK_CLIENT.api_call('chat.postMessage', channel=self.CHANNEL,
+                                                   text=msg, as_user=True)
+
                 time.sleep(self.READ_WEBSOCKET_DELAY)
         else:
             print 'Connection failed. Invalid Slack token or bot ID?'
