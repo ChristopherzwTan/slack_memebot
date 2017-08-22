@@ -41,19 +41,19 @@
         {
             "type": "coffee",
             "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-            "time": "21:20",
+            "time": "14:15",
             "message": "Coffee?"
         },
         {
             "type": "eating_in",
             "days": ["Monday", "Wednesday"],
-            "time": "21:22",
+            "time": "11:30",
             "message": "Ready for lunch upstairs?"
         },
         {
             "type": "eating_out",
-            "days": ["Tuesday", "Thursday", "Monday"],
-            "time": "21:24",
+            "days": ["Tuesday", "Thursday"],
+            "time": "11:00",
             "message": "What's for lunch?"
         }
     ]
