@@ -1,0 +1,60 @@
+{
+    "restaurants": [
+        {
+            "name": "Bubble Waffle",
+            "weight": 5 
+        },
+        {
+            "name": "Close Pho",
+            "weight": 5
+        },
+        {
+            "name": "Far Pho",
+            "weight": 4
+        },
+        {
+            "name": "McDonald's",
+            "weight": 1
+        },
+        {
+            "name": "Al Basha",
+            "weight": 1
+        },
+        {
+            "name": "Kisha Poppo",
+            "weight": 1
+        },
+        {
+            "name": "Daddy's Delight",
+            "weight": 1
+        },
+        {
+            "name": "LA Chicken",
+            "weight": 1
+        },
+        {
+            "name": "Blue Sail Cafe",
+            "weight": 0.25
+        }
+    ],
+    "messages": [
+        {
+            "type": "coffee",
+            "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+            "time": "14:15",
+            "message": "Coffee?"
+        },
+        {
+            "type": "eating_in",
+            "days": ["Monday", "Wednesday"],
+            "time": "11:30",
+            "message": "Ready for lunch upstairs?"
+        },
+        {
+            "type": "eating_out",
+            "days": ["Tuesday", "Thursday"],
+            "time": "11:00",
+            "message": "What's for lunch?"
+        }
+    ]
+}
