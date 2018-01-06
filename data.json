@@ -1,6 +1,10 @@
 {
     "restaurants": [
         {
+            "name": "Rosemary Rocksalt",
+            "weight": 4
+        },
+        {
             "name": "Bubble Waffle",
             "weight": 5 
         },
