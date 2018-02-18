@@ -85,16 +85,20 @@ class Lunchbot(object):
             upto += item['weight']
         assert False, 'Shouldn\'t get here'
 
-    def handle_lunchbot_command(self, command):
+    def handle_lunchbot_command(self, command, user):
         """
         Takes a command from Slack chat directed at Lunchbot and performs the action if it is supported
         """
+        post_ephemeral = False
+
         if 'help' in command.lower():
+            post_ephemeral = True
             msg = ('Here are the actions that Lunchbot can perform:\n'
                    'list restaurants\n'
                    'add restaurant <name> <weight>\n'
                    'remove restaurant <name>\n')
         elif 'list restaurants' in command.lower():
+            post_ephemeral = True
             msg = ''
             for restaurant in self.RESTAURANTS:
                 msg = '\n'.join([msg, '%s has weight %s' % (restaurant['name'], restaurant['weight'])])
@@ -150,11 +154,18 @@ class Lunchbot(object):
                 self.update_data()
                 self.read_data()
             else:
+                post_ephemeral = True
                 msg = 'Uh oh! %s is not in the list of restaurants.' % restaurant
         else:
+            post_ephemeral = True
             msg = 'I\'m not smart enough to understand what you mean! Please type "Lunchbot help" to see what I can do :)'
 
-        self.SLACK_CLIENT.api_call('chat.postMessage', channel=self.CHANNEL, text=msg, as_user=True)
+        if post_ephemeral:
+            # Some messages don't need to be sent to everyone. Only send to the user who sent the command.
+            print 'Posting ephemeral message'
+            self.SLACK_CLIENT.api_call('chat.postEphemeral', user=user, channel=self.CHANNEL, text=msg, as_user=True)
+        else:
+            self.SLACK_CLIENT.api_call('chat.postMessage', channel=self.CHANNEL, text=msg, as_user=True)
 
     def run(self):
         """
@@ -188,7 +199,8 @@ class Lunchbot(object):
                         # Check if message was not sent by Lunchbot and is directed to lunchbot
                         if message['user'] != self.print_bot_id(self.BOT_NAME) and 'lunchbot' in message['text'].lower():
                             print 'Lunchbot is receiving a command!'
-                            self.handle_lunchbot_command(read_message[0]['text'])
+                            print 'full text: %s' % read_message
+                            self.handle_lunchbot_command(read_message[0]['text'], read_message[0]['user'])
 
                 time.sleep(self.READ_WEBSOCKET_DELAY)
         else:
