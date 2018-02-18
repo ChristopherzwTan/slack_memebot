@@ -173,6 +173,7 @@ class Lunchbot(object):
         """
         if self.SLACK_CLIENT.rtm_connect():
             print 'Lunchbot connected and running!'
+            last_msg = None
             while True:
                 # Get current time and day
                 now = datetime.now()
@@ -181,7 +182,9 @@ class Lunchbot(object):
 
                 # Loop through messages and see if it's the correct time to print one
                 for message in self.MESSAGES:
-                    if current_time == message['time'] and day in message['days']:
+                    # Check if it's the right time to post message and that it hasn't already been posted
+                    if current_time == message['time'] and day in message['days'] and (last_msg is None or current_time != last_msg):
+                        last_msg = current_time
                         msg = message['message']
 
                         # Append restaurant when eating out
@@ -209,6 +212,6 @@ class Lunchbot(object):
 
 if __name__ == "__main__":
     BOT = Lunchbot()
-    BOT.print_bot_id(BOT.BOT_NAME)
+    # BOT.print_bot_id(BOT.BOT_NAME)
 
     BOT.run()
