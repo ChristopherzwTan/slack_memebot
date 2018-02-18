@@ -1,12 +1,13 @@
 # https://api.slack.com/methods
 
-import os
-import time
-import random
 import json
-from datetime import datetime
-from slackclient import SlackClient
+import os
+import random
 import re
+import time
+from datetime import datetime
+
+from slackclient import SlackClient
 
 class Lunchbot(object):
     """
@@ -36,6 +37,9 @@ class Lunchbot(object):
         self.MESSAGES = data['messages']
 
     def update_data(self):
+        """
+        Writes any changes to the data file
+        """
         data = {}
         data['restaurants'] = self.RESTAURANTS
         data['messages'] = self.MESSAGES
@@ -43,6 +47,9 @@ class Lunchbot(object):
             json.dump(data, data_file)
 
     def find_restaurant(self, res):
+        """
+        Checks if the restaurant res is already in the restaurant list
+        """
         for restaurant in self.RESTAURANTS:
             if res.lower() == restaurant['name'].lower():
                 return restaurant
@@ -65,9 +72,8 @@ class Lunchbot(object):
 
     def weighted_choice(self, choices):
         """
-        Given a list of tuples where each tuple is of the form
-        (item, weight), this function will return a random choice
-        taking into account the weight of each item
+        Given a list of tuples where each tuple is of the form (item, weight), this function will return 
+        a random choice taking into account the weight of each item
         """
         # total = sum(w for c, w in choices)
         total = sum(item['weight'] for item in choices)
@@ -81,14 +87,13 @@ class Lunchbot(object):
 
     def handle_lunchbot_command(self, command):
         """
-        Takes a command from Slack chat directed at Lunchbot and performs the action
-        if it is supported
+        Takes a command from Slack chat directed at Lunchbot and performs the action if it is supported
         """
         if 'help' in command.lower():
-            msg =   ('Here are the actions that Lunchbot can perform:\n'
-                    'list restaurants                   -- lists all the restaurants Lunchbot supports and their weights\n'
-                    'add restaurant <name> <weight>     -- add a new restaurant to the list of restaurants (if restaurant name has spaces please surround with quotations)\n'
-                    'remove restaurant <name>           -- remove the restaurant from the list of restaurants\n')
+            msg = ('Here are the actions that Lunchbot can perform:\n'
+                   'list restaurants\n'
+                   'add restaurant <name> <weight>\n'
+                   'remove restaurant <name>\n')
         elif 'list restaurants' in command.lower():
             msg = ''
             for restaurant in self.RESTAURANTS:
@@ -147,7 +152,7 @@ class Lunchbot(object):
             else:
                 msg = 'Uh oh! %s is not in the list of restaurants.' % restaurant
         else:
-            msg = 'I\'m not smart enough to understand what you mean, sorry about that! Please type "Lunchbot help" to see what I do understand :)'
+            msg = 'I\'m not smart enough to understand what you mean! Please type "Lunchbot help" to see what I can do :)'
 
         self.SLACK_CLIENT.api_call('chat.postMessage', channel=self.CHANNEL, text=msg, as_user=True)
 
@@ -184,7 +189,7 @@ class Lunchbot(object):
                         if message['user'] != self.print_bot_id(self.BOT_NAME) and 'lunchbot' in message['text'].lower():
                             print 'Lunchbot is receiving a command!'
                             self.handle_lunchbot_command(read_message[0]['text'])
-                
+
                 time.sleep(self.READ_WEBSOCKET_DELAY)
         else:
             print 'Connection failed. Invalid Slack token or bot ID?'
