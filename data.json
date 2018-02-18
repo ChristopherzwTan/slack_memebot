@@ -1,1 +1,84 @@
-{"messages": [{"message": "Coffee?", "type": "coffee", "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], "time": "14:15"}, {"message": "Ready for lunch upstairs?", "type": "eating_in", "days": ["Monday", "Wednesday"], "time": "11:30"}, {"message": "What's for lunch?", "type": "eating_out", "days": ["Tuesday", "Thursday"], "time": "11:00"}], "restaurants": [{"name": "Bubble Waffle", "weight": 5}, {"name": "Close Pho", "weight": 5}, {"name": "Far Pho", "weight": 4}, {"name": "McDonald's", "weight": 1}, {"name": "Al Basha", "weight": 1}, {"name": "Kisha Poppo", "weight": 1}, {"name": "Daddy's Delight", "weight": 1}, {"name": "LA Chicken", "weight": 1}, {"name": "Blue Sail Cafe", "weight": 0.25}, {"name": "London Cafe", "weight": 3}, {"name": "Ichigo Ichie Ramen", "weight": 5}, {"name": "Rosemary Rocksalt", "weight": 3}]}
+{
+    "messages": [
+        {
+            "message": "Coffee?",
+            "type": "coffee",
+            "days": [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday"
+            ],
+            "time": "14:15"
+        },
+        {
+            "message": "Ready for lunch upstairs?",
+            "type": "eating_in",
+            "days": [
+                "Monday",
+                "Wednesday"
+            ],
+            "time": "11:30"
+        },
+        {
+            "message": "What's for lunch?",
+            "type": "eating_out",
+            "days": [
+                "Tuesday",
+                "Thursday"
+            ],
+            "time": "11:00"
+        }
+    ],
+    "restaurants": [
+        {
+            "name": "Bubble Waffle",
+            "weight": 5
+        },
+        {
+            "name": "Close Pho",
+            "weight": 5
+        },
+        {
+            "name": "Far Pho",
+            "weight": 4
+        },
+        {
+            "name": "McDonald's",
+            "weight": 1
+        },
+        {
+            "name": "Al Basha",
+            "weight": 1
+        },
+        {
+            "name": "Kisha Poppo",
+            "weight": 1
+        },
+        {
+            "name": "Daddy's Delight",
+            "weight": 1
+        },
+        {
+            "name": "LA Chicken",
+            "weight": 1
+        },
+        {
+            "name": "Blue Sail Cafe",
+            "weight": 0.25
+        },
+        {
+            "name": "London Cafe",
+            "weight": 3
+        },
+        {
+            "name": "Ichigo Ichie Ramen",
+            "weight": 5
+        },
+        {
+            "name": "Rosemary Rocksalt",
+            "weight": 3
+        }
+    ]
+}
