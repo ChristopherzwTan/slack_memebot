@@ -26,6 +26,13 @@ class Lunchbot(object):
 
     def __init__(self):
         self.read_data()
+        self.post_ephemeral = False
+
+        # Constants
+        self.HELPTEXT = ('Here are the actions that Lunchbot can perform:\n'
+                    'list restaurants\n'
+                    'add restaurant <name> <weight>\n'
+                    'remove restaurant <name>\n')
 
     def read_data(self):
         """
@@ -89,16 +96,13 @@ class Lunchbot(object):
         """
         Takes a command from Slack chat directed at Lunchbot and performs the action if it is supported
         """
-        post_ephemeral = False
+        self.post_ephemeral = False
 
         if 'help' in command.lower():
-            post_ephemeral = True
-            msg = ('Here are the actions that Lunchbot can perform:\n'
-                   'list restaurants\n'
-                   'add restaurant <name> <weight>\n'
-                   'remove restaurant <name>\n')
+            self.post_ephemeral = True
+            msg = self.HELPTEXT
         elif 'list restaurants' in command.lower():
-            post_ephemeral = True
+            self.post_ephemeral = True
             msg = ''
             for restaurant in self.RESTAURANTS:
                 msg = '\n'.join([msg, '%s has weight %s' % (restaurant['name'], restaurant['weight'])])
@@ -108,6 +112,15 @@ class Lunchbot(object):
             # Get restaurant and weight to add from command
             restaurant = pieces[-2]
             weight = int(pieces[-1])
+
+            if isinstance(weight, (int, long)):
+                pass
+            else:
+
+                # if no weight assume 0?
+				# todo decide...
+				weight = 0
+				
             # Remove quotations from restaurant string if there are any
             if restaurant[0] == '"':
                 quotation = '"'
@@ -154,13 +167,13 @@ class Lunchbot(object):
                 self.update_data()
                 self.read_data()
             else:
-                post_ephemeral = True
+                self.post_ephemeral = True
                 msg = 'Uh oh! %s is not in the list of restaurants.' % restaurant
         else:
-            post_ephemeral = True
+            self.post_ephemeral = True
             msg = 'I\'m not smart enough to understand what you mean! Please type "Lunchbot help" to see what I can do :)'
 
-        if post_ephemeral:
+        if self.post_ephemeral:
             # Some messages don't need to be sent to everyone. Only send to the user who sent the command.
             print 'Posting ephemeral message'
             self.SLACK_CLIENT.api_call('chat.postEphemeral', user=user, channel=self.CHANNEL, text=msg, as_user=True)
