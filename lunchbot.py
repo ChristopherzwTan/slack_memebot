@@ -28,11 +28,12 @@ class Lunchbot(object):
         self.read_data()
         self.post_ephemeral = False
 
-        # Constants
+        # String Constants
         self.HELPTEXT = ('Here are the actions that Lunchbot can perform:\n'
                     'list restaurants\n'
                     'add restaurant <name> <weight>\n'
                     'remove restaurant <name>\n')
+        self.BLANK = ""
 
     def read_data(self):
         """
@@ -92,35 +93,26 @@ class Lunchbot(object):
             upto += item['weight']
         assert False, 'Shouldn\'t get here'
 
-    def handle_lunchbot_command(self, command, user):
-        """
-        Takes a command from Slack chat directed at Lunchbot and performs the action if it is supported
-        """
-        self.post_ephemeral = False
-
-        if 'help' in command.lower():
-            self.post_ephemeral = True
-            msg = self.HELPTEXT
-        elif 'list restaurants' in command.lower():
-            self.post_ephemeral = True
-            msg = ''
-            for restaurant in self.RESTAURANTS:
-                msg = '\n'.join([msg, '%s has weight %s' % (restaurant['name'], restaurant['weight'])])
-        elif 'add restaurant' in command.lower():
+    def add_restaurant_command(self, command):
+        try:
             # Split command but keep quoted substrings as a single unit
             pieces = [p for p in re.split("( |\\\".*?\\\"|'.*?')", command) if p.strip()]
+
             # Get restaurant and weight to add from command
             restaurant = pieces[-2]
             weight = int(pieces[-1])
 
-            if isinstance(weight, (int, long)):
-                pass
+            # error checking.
+            if restaurant is None:
+                return "Please specify a restaurant"
+            if weight is None:
+                return "Please specify a weight"
             else:
+                try:
+                    weight = int(weight)
+                except:
+                    return "enter a valid weight"
 
-                # if no weight assume 0?
-				# todo decide...
-				weight = 0
-				
             # Remove quotations from restaurant string if there are any
             if restaurant[0] == '"':
                 quotation = '"'
@@ -132,7 +124,8 @@ class Lunchbot(object):
             existing_restaurant = self.find_restaurant(restaurant)
             if existing_restaurant is not None:
                 # Restaurant is in list, so update with new weight value
-                msg = 'Updating restaurant %s with new weight %d (was %d)' % (restaurant, weight, existing_restaurant['weight'])
+                msg = 'Updating restaurant %s with new weight %d (was %d)' % (
+                restaurant, weight, existing_restaurant['weight'])
                 restaurant_index = self.RESTAURANTS.index(restaurant)
                 existing_restaurant['weight'] = weight
                 self.RESTAURANTS[restaurant_index] = existing_restaurant
@@ -146,7 +139,13 @@ class Lunchbot(object):
             # Update data.json file and reload global variables
             self.update_data()
             self.read_data()
-        elif 'remove restaurant' in command.lower():
+        except:
+            msg = 'please try again'
+        return msg
+
+    def remove_restaurant_command(self, command):
+
+        try:
             # Split command but keep quoted substrings as a single unit
             pieces = [p for p in re.split("( |\\\".*?\\\"|'.*?')", command) if p.strip()]
             # Get restaurant and weight to add from command
@@ -169,10 +168,41 @@ class Lunchbot(object):
             else:
                 self.post_ephemeral = True
                 msg = 'Uh oh! %s is not in the list of restaurants.' % restaurant
+        except:
+            msg = 'please try again'
+        return msg
+
+    def handle_lunchbot_command(self, command, user):
+        """
+        Takes a command from Slack chat directed at Lunchbot and performs the action if it is supported
+        """
+        self.post_ephemeral = False
+
+        if 'help' in command.lower():
+            self.post_ephemeral = True
+            msg = self.HELPTEXT
+        elif 'list restaurants' in command.lower():
+            self.post_ephemeral = True
+            msg = self.BLANK
+            for restaurant in self.RESTAURANTS:
+                msg = '\n'.join([msg, '%s has weight %s' % (restaurant['name'], restaurant['weight'])])
+
+        elif 'add restaurant' in command.lower():
+            msg = self.add_restaurant_command(command)
+
+        elif 'remove restaurant' in command.lower():
+            msg = self.remove_restaurant_command(command)
+
+        elif '' in command.lower():
+            self.post_ephemeral = True
+            msg = 'What can i do for you? Please type "Lunchbot help" to see what I can do :)'
+
         else:
             self.post_ephemeral = True
             msg = 'I\'m not smart enough to understand what you mean! Please type "Lunchbot help" to see what I can do :)'
 
+        # posting messages
+        # todo DMing someone instead of lunch chat.
         if self.post_ephemeral:
             # Some messages don't need to be sent to everyone. Only send to the user who sent the command.
             print 'Posting ephemeral message'
