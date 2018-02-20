@@ -6,8 +6,8 @@ import random
 import re
 import time
 from datetime import datetime
-
 from slackclient import SlackClient
+
 
 class Lunchbot(object):
     """
@@ -24,10 +24,10 @@ class Lunchbot(object):
     # Lunchbot constants
     RESTAURANTS = {}
     MESSAGES = {}
-    HELPTEXT = ('Here are the actions that Lunchbot can perform:\n'
-                'list restaurants\n'
-                'add restaurant <name> <weight>\n'
-                'remove restaurant <name>\n')
+    HELP_TEXT = ('Here are the actions that Lunchbot can perform:\n'
+                 'list restaurants\n'
+                 'add restaurant <name> <weight>\n'
+                 'remove restaurant <name>\n')
 
     def __init__(self):
         self.read_data()
@@ -106,13 +106,16 @@ class Lunchbot(object):
 
             # error checking.
             if restaurant is None:
+                self.post_ephemeral = True
                 return "Please specify a restaurant"
             if weight is None:
+                self.post_ephemeral = True
                 return "Please specify a weight"
             else:
                 try:
                     weight = int(weight)
                 except ValueError:
+                    self.post_ephemeral = True
                     return "Enter a valid weight"
 
             # Remove quotations from restaurant string if there are any
@@ -184,7 +187,7 @@ class Lunchbot(object):
 
         if 'help' in command.lower():
             self.post_ephemeral = True
-            msg = HELPTEXT
+            msg = self.HELP_TEXT
         elif 'list restaurants' in command.lower():
             self.post_ephemeral = True
             msg = self.BLANK
