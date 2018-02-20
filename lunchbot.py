@@ -20,19 +20,21 @@ class Lunchbot(object):
     SLACK_CLIENT = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
     READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
 
+
     # Lunchbot constants
     RESTAURANTS = {}
     MESSAGES = {}
+    HELPTEXT = ('Here are the actions that Lunchbot can perform:\n'
+                'list restaurants\n'
+                'add restaurant <name> <weight>\n'
+                'remove restaurant <name>\n')
 
     def __init__(self):
         self.read_data()
         self.post_ephemeral = False
 
         # String Constants
-        self.HELPTEXT = ('Here are the actions that Lunchbot can perform:\n'
-                    'list restaurants\n'
-                    'add restaurant <name> <weight>\n'
-                    'remove restaurant <name>\n')
+
         self.BLANK = ""
 
     def read_data(self):
@@ -110,8 +112,8 @@ class Lunchbot(object):
             else:
                 try:
                     weight = int(weight)
-                except:
-                    return "enter a valid weight"
+                except ValueError:
+                    return "Enter a valid weight"
 
             # Remove quotations from restaurant string if there are any
             if restaurant[0] == '"':
@@ -139,8 +141,9 @@ class Lunchbot(object):
             # Update data.json file and reload global variables
             self.update_data()
             self.read_data()
-        except:
-            msg = 'please try again'
+        except Exception as e:
+            self.post_ephemeral = True
+            msg = 'Please try again.\n%s' % e
         return msg
 
     def remove_restaurant_command(self, command):
@@ -168,8 +171,9 @@ class Lunchbot(object):
             else:
                 self.post_ephemeral = True
                 msg = 'Uh oh! %s is not in the list of restaurants.' % restaurant
-        except:
-            msg = 'please try again'
+        except Exception as e:
+            self.post_ephemeral = True
+            msg = 'Please try again.\n%s' % e
         return msg
 
     def handle_lunchbot_command(self, command, user):
@@ -180,23 +184,19 @@ class Lunchbot(object):
 
         if 'help' in command.lower():
             self.post_ephemeral = True
-            msg = self.HELPTEXT
+            msg = HELPTEXT
         elif 'list restaurants' in command.lower():
             self.post_ephemeral = True
             msg = self.BLANK
             for restaurant in self.RESTAURANTS:
                 msg = '\n'.join([msg, '%s has weight %s' % (restaurant['name'], restaurant['weight'])])
-
         elif 'add restaurant' in command.lower():
             msg = self.add_restaurant_command(command)
-
         elif 'remove restaurant' in command.lower():
             msg = self.remove_restaurant_command(command)
-
         elif '' in command.lower():
             self.post_ephemeral = True
             msg = 'What can i do for you? Please type "Lunchbot help" to see what I can do :)'
-
         else:
             self.post_ephemeral = True
             msg = 'I\'m not smart enough to understand what you mean! Please type "Lunchbot help" to see what I can do :)'
