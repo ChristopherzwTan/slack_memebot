@@ -33,10 +33,6 @@ class Lunchbot(object):
         self.read_data()
         self.post_ephemeral = False
 
-        # String Constants
-
-        self.BLANK = ""
-
     def read_data(self):
         """
         Reads data from data file and updates internal constants
@@ -150,7 +146,6 @@ class Lunchbot(object):
         return msg
 
     def remove_restaurant_command(self, command):
-
         try:
             # Split command but keep quoted substrings as a single unit
             pieces = [p for p in re.split("( |\\\".*?\\\"|'.*?')", command) if p.strip()]
@@ -199,13 +194,12 @@ class Lunchbot(object):
             msg = self.remove_restaurant_command(command)
         elif '' in command.lower():
             self.post_ephemeral = True
-            msg = 'What can i do for you? Please type "Lunchbot help" to see what I can do :)'
+            msg = 'What can I do for you? Please type "Lunchbot help" to see what I can do :)'
         else:
             self.post_ephemeral = True
             msg = 'I\'m not smart enough to understand what you mean! Please type "Lunchbot help" to see what I can do :)'
 
         # posting messages
-        # todo DMing someone instead of lunch chat.
         if self.post_ephemeral:
             # Some messages don't need to be sent to everyone. Only send to the user who sent the command.
             print 'Posting ephemeral message'
