@@ -6,8 +6,8 @@ import random
 import re
 import time
 from datetime import datetime
-
 from slackclient import SlackClient
+
 
 class Lunchbot(object):
     """
@@ -20,12 +20,19 @@ class Lunchbot(object):
     SLACK_CLIENT = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
     READ_WEBSOCKET_DELAY = 1 # 1 second delay between reading from firehose
 
+
     # Lunchbot constants
     RESTAURANTS = {}
     MESSAGES = {}
+    BLANK = ""
+    HELP_TEXT = ('Here are the actions that Lunchbot can perform:\n'
+                 'list restaurants\n'
+                 'add restaurant <name> <weight>\n'
+                 'remove restaurant <name>\n')
 
     def __init__(self):
         self.read_data()
+        self.post_ephemeral = False
 
     def read_data(self):
         """
@@ -85,29 +92,29 @@ class Lunchbot(object):
             upto += item['weight']
         assert False, 'Shouldn\'t get here'
 
-    def handle_lunchbot_command(self, command, user):
-        """
-        Takes a command from Slack chat directed at Lunchbot and performs the action if it is supported
-        """
-        post_ephemeral = False
-
-        if 'help' in command.lower():
-            post_ephemeral = True
-            msg = ('Here are the actions that Lunchbot can perform:\n'
-                   'list restaurants\n'
-                   'add restaurant <name> <weight>\n'
-                   'remove restaurant <name>\n')
-        elif 'list restaurants' in command.lower():
-            post_ephemeral = True
-            msg = ''
-            for restaurant in self.RESTAURANTS:
-                msg = '\n'.join([msg, '%s has weight %s' % (restaurant['name'], restaurant['weight'])])
-        elif 'add restaurant' in command.lower():
+    def add_restaurant_command(self, command):
+        try:
             # Split command but keep quoted substrings as a single unit
             pieces = [p for p in re.split("( |\\\".*?\\\"|'.*?')", command) if p.strip()]
+
             # Get restaurant and weight to add from command
             restaurant = pieces[-2]
             weight = int(pieces[-1])
+
+            # error checking.
+            if restaurant is None:
+                self.post_ephemeral = True
+                return "Please specify a restaurant"
+            if weight is None:
+                self.post_ephemeral = True
+                return "Please specify a weight"
+            else:
+                try:
+                    weight = int(weight)
+                except ValueError:
+                    self.post_ephemeral = True
+                    return "Enter a valid weight"
+
             # Remove quotations from restaurant string if there are any
             if restaurant[0] == '"':
                 quotation = '"'
@@ -119,7 +126,8 @@ class Lunchbot(object):
             existing_restaurant = self.find_restaurant(restaurant)
             if existing_restaurant is not None:
                 # Restaurant is in list, so update with new weight value
-                msg = 'Updating restaurant %s with new weight %d (was %d)' % (restaurant, weight, existing_restaurant['weight'])
+                msg = 'Updating restaurant %s with new weight %d (was %d)' % (
+                restaurant, weight, existing_restaurant['weight'])
                 restaurant_index = self.RESTAURANTS.index(restaurant)
                 existing_restaurant['weight'] = weight
                 self.RESTAURANTS[restaurant_index] = existing_restaurant
@@ -133,7 +141,13 @@ class Lunchbot(object):
             # Update data.json file and reload global variables
             self.update_data()
             self.read_data()
-        elif 'remove restaurant' in command.lower():
+        except Exception as e:
+            self.post_ephemeral = True
+            msg = 'Please try again.\n%s' % e
+        return msg
+
+    def remove_restaurant_command(self, command):
+        try:
             # Split command but keep quoted substrings as a single unit
             pieces = [p for p in re.split("( |\\\".*?\\\"|'.*?')", command) if p.strip()]
             # Get restaurant and weight to add from command
@@ -154,13 +168,40 @@ class Lunchbot(object):
                 self.update_data()
                 self.read_data()
             else:
-                post_ephemeral = True
+                self.post_ephemeral = True
                 msg = 'Uh oh! %s is not in the list of restaurants.' % restaurant
+        except Exception as e:
+            self.post_ephemeral = True
+            msg = 'Please try again.\n%s' % e
+        return msg
+
+    def handle_lunchbot_command(self, command, user):
+        """
+        Takes a command from Slack chat directed at Lunchbot and performs the action if it is supported
+        """
+        self.post_ephemeral = False
+
+        if 'help' in command.lower():
+            self.post_ephemeral = True
+            msg = self.HELP_TEXT
+        elif 'list restaurants' in command.lower():
+            self.post_ephemeral = True
+            msg = self.BLANK
+            for restaurant in self.RESTAURANTS:
+                msg = '\n'.join([msg, '%s has weight %s' % (restaurant['name'], restaurant['weight'])])
+        elif 'add restaurant' in command.lower():
+            msg = self.add_restaurant_command(command)
+        elif 'remove restaurant' in command.lower():
+            msg = self.remove_restaurant_command(command)
+        elif '' in command.lower():
+            self.post_ephemeral = True
+            msg = 'What can I do for you? Please type "Lunchbot help" to see what I can do :)'
         else:
-            post_ephemeral = True
+            self.post_ephemeral = True
             msg = 'I\'m not smart enough to understand what you mean! Please type "Lunchbot help" to see what I can do :)'
 
-        if post_ephemeral:
+        # posting messages
+        if self.post_ephemeral:
             # Some messages don't need to be sent to everyone. Only send to the user who sent the command.
             print 'Posting ephemeral message'
             self.SLACK_CLIENT.api_call('chat.postEphemeral', user=user, channel=self.CHANNEL, text=msg, as_user=True)
