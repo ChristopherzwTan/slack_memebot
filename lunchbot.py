@@ -24,6 +24,7 @@ class Lunchbot(object):
     # Lunchbot constants
     RESTAURANTS = {}
     MESSAGES = {}
+    BLANK = ""
     HELP_TEXT = ('Here are the actions that Lunchbot can perform:\n'
                  'list restaurants\n'
                  'add restaurant <name> <weight>\n'
